@@ -1,0 +1,7 @@
+{
+  "created_at": "2026-10-30T14:55:27",
+  "description": "Fixes for Sync for Reddit v23.06.30-13:39 (free) after Reddit blocked /api/info and /api/morechildren in October 2026.\n\n- **Fix Reddit galleries**: galleries open again.\n- **Fix load more comments**: \"View more\" works again.\n\nRepatch Sync with your usual official patches (Spoof client and the others) plus these two.",
+  "download_url": "https://github.com/Krokette/revanced-sync-fixes/releases/download/v1.0.0/patches.rvp",
+  "signature_download_url": "N/A",
+  "version": "v1.0.0"
+}
