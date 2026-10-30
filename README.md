@@ -85,6 +85,14 @@ Run revanced-cli with an OpenJDK build such as Temurin. Oracle's JDK can't sign 
 | `test/` | Tests of `SyncFixes` that run on a computer |
 | `bundles/stable.json` | The link ReVanced Manager follows to find the latest release |
 
+## Contributing
+
+This is the official repository of these patches. For Sync, please open an
+[issue](https://github.com/Krokette/revanced-sync-fixes/issues) or a pull request here rather than publishing your
+own copy, so everyone gets fixes from one place. Ports of the same idea to other Reddit apps are welcome.
+
 ## License
 
-[GPL-3.0](LICENSE), like ReVanced and revanced-rif-fixes.
+Copyright (C) 2026 Krokette
+
+[GPL-3.0](LICENSE), like ReVanced and revanced-rif-fixes, on which part of this code is based.
