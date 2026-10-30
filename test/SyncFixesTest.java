@@ -102,6 +102,38 @@ public final class SyncFixesTest {
                 "post1", "c1", "new").contains("sort="));
         SyncFixes.moreRegister(new Object());
 
+        // Ids and sorts that don't look like Reddit's can't reach the URL.
+        String original = "https://oauth.reddit.com/api/morechildren?always_show_media=1&profile_img=true";
+        SyncFixes.moreParent("t1_a/../../api/v1/me?", null, null);
+        check("odd parent id leaves the request alone",
+                SyncFixes.moreUrl(original, "post1", "c1", null).equals(original));
+        SyncFixes.moreRegister(new Object());
+        SyncFixes.moreParent("t3_post1", null, null);
+        check("odd post id leaves the request alone",
+                SyncFixes.moreUrl(original, "x@evil.com", "c1", null).equals(original));
+        SyncFixes.moreRegister(new Object());
+        SyncFixes.moreParent("t3_post1", "new#x&y=1", null);
+        check("unknown sort dropped",
+                !SyncFixes.moreUrl(original, "post1", "c1", null).contains("sort="));
+        SyncFixes.moreRegister(new Object());
+        SyncFixes.moreParent("t3_post1", "Q&A", null);
+        check("q&a sent as qa", SyncFixes.moreUrl(original, "post1", "c1", null).endsWith("&sort=qa"));
+        SyncFixes.moreRegister(new Object());
+
+        // A reply nested far deeper than Reddit sends is cut off instead of overflowing the stack.
+        StringBuilder deep = new StringBuilder(t1("z", "t1_d199", ""));
+        for (int i = 199; i >= 0; i--) {
+            deep = new StringBuilder(t1("d" + i, i == 0 ? "t3_post1" : "t1_d" + (i - 1), deep.toString()));
+        }
+        SyncFixes.moreParent("t3_post1", null, null);
+        SyncFixes.moreUrl(original, "post1", "d0", null);
+        Object deepRequest = new Object();
+        SyncFixes.moreRegister(deepRequest);
+        String deepOut = SyncFixes.moreBody("[" + post + ",{\"kind\":\"Listing\",\"data\":{\"children\":["
+                + deep + "]}}]", deepRequest);
+        check("very deep reply cut at 50 levels", new JSONObject(deepOut).getJSONObject("json").getJSONObject("data")
+                .getJSONArray("things").length() == 51);
+
         if (failures > 0) {
             System.out.println(failures + " failure(s)");
             System.exit(1);

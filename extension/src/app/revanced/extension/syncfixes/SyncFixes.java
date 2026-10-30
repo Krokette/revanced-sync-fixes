@@ -28,8 +28,15 @@ import org.json.JSONObject;
 public final class SyncFixes {
     private static final Pattern INFO_POST =
             Pattern.compile("^https://(oauth|www)\\.reddit\\.com/api/info(?:\\.json)?/?\\?id=t3_([a-z0-9]+)$");
-    private static final String MORE_PATH = "api/morechildren";
-    private static final String DEFAULT_BASE = "https://oauth.reddit.com/";
+    /** The only host these requests go to: the one Sync sends its signed-in requests to. */
+    private static final String BASE = "https://oauth.reddit.com/";
+    /** Reddit ids are base 36. Anything else is left alone, so it can't change the request's path or query. */
+    private static final Pattern ID = Pattern.compile("[a-z0-9]+");
+    /** Comment sorts Reddit knows, as Sync writes them once lower-cased and without "&" ("q&a" is "qa"). */
+    private static final Set<String> SORTS = new HashSet<>(Arrays.asList(
+            "confidence", "best", "top", "new", "controversial", "old", "random", "qa", "live"));
+    /** Deeper than any thread Reddit returns for depth=10: a reply nested further is not walked. */
+    private static final int MAX_DEPTH = 50;
 
     /** Set by the comments presenter right before it creates the request: {parent fullname, sort, focus id}. */
     private static final ThreadLocal<String[]> PARENT = new ThreadLocal<>();
@@ -90,7 +97,7 @@ public final class SyncFixes {
      * Hooked into the morechildren request's constructor, which then sends it as GET: the URL of the parent's
      * subtree instead of morechildren.
      *
-     * @param original      Sync's morechildren URL, for its host.
+     * @param original      Sync's morechildren URL, returned unchanged when an id doesn't look like a Reddit id.
      * @param link          post id without its t3_ prefix.
      * @param children      comma-joined ids the "more" row stands for.
      * @param suggestedSort the post's suggested sort, which Sync sent to morechildren.
@@ -106,12 +113,11 @@ public final class SyncFixes {
             sort = context != null && usable(context[1]) ? context[1] : suggestedSort;
         }
 
-        String base = DEFAULT_BASE;
-        if (original != null && original.contains(MORE_PATH)) {
-            base = original.substring(0, original.indexOf(MORE_PATH));
-        }
         boolean nested = parent != null && parent.startsWith("t1_");
-        StringBuilder url = new StringBuilder(base).append("comments/").append(link);
+        if (!isId(link) || (nested && !isId(parent.substring(3)))) {
+            return original;
+        }
+        StringBuilder url = new StringBuilder(BASE).append("comments/").append(link);
         if (nested) {
             url.append("/_/").append(parent.substring(3));
         }
@@ -120,7 +126,10 @@ public final class SyncFixes {
         // replies below the cut come back as "Continue thread" rows, which open the thread on its own page.
         url.append("&limit=500&depth=").append(nested ? 10 : 3);
         if (usable(sort)) {
-            url.append("&sort=").append(sort.toLowerCase(Locale.ENGLISH).replaceAll("&", ""));
+            String name = sort.toLowerCase(Locale.ENGLISH).replace("&", "");
+            if (SORTS.contains(name)) {
+                url.append("&sort=").append(name);
+            }
         }
 
         if (parent == null) {
@@ -158,7 +167,7 @@ public final class SyncFixes {
         shown.add(parent);
         JSONArray things = new JSONArray();
         JSONArray top = new JSONArray(text.trim()).getJSONObject(1).getJSONObject("data").getJSONArray("children");
-        walk(top, parent, wanted, shown, things);
+        walk(top, parent, wanted, shown, things, 0);
         // With nothing new (the rest lies beyond Reddit's 500-comment window of a huge thread), this is an empty
         // list: Sync removes the row. An error would keep it, and Sync reloads top-level rows by itself every time
         // the list is redrawn, which an error does: it would retry the same request forever.
@@ -173,8 +182,11 @@ public final class SyncFixes {
      * thing makes one row. Returns the number of comments added.
      */
     private static int walk(JSONArray children, String parent, Set<String> wanted, Set<String> shown,
-                            JSONArray things) throws JSONException {
+                            JSONArray things, int depth) throws JSONException {
         int added = 0;
+        if (depth > MAX_DEPTH) {
+            return 0;
+        }
         for (int i = 0; i < children.length(); i++) {
             JSONObject child = children.optJSONObject(i);
             if (child == null) {
@@ -199,7 +211,7 @@ public final class SyncFixes {
                 if (replies != null && replies.optJSONObject("data") != null) {
                     JSONArray sub = replies.optJSONObject("data").optJSONArray("children");
                     if (sub != null) {
-                        added += walk(sub, parent, wanted, shown, things);
+                        added += walk(sub, parent, wanted, shown, things, depth + 1);
                     }
                 }
             } else if ("more".equals(kind) && shown.contains(parentId) && !parentId.equals(parent)) {
@@ -209,6 +221,10 @@ public final class SyncFixes {
             }
         }
         return added;
+    }
+
+    private static boolean isId(String id) {
+        return id != null && ID.matcher(id).matches();
     }
 
     private static boolean usable(String sort) {
