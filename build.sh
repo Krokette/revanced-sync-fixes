@@ -57,8 +57,14 @@ fetch "https://dl.google.com/android/maven2/com/android/tools/r8/$R8_VERSION/r8-
   0d4f2f68c4fcbc9434eff122f41feb6fb1d98efd2faa530cec1abacab1cea03d "$R8"
 fetch "https://repo1.maven.org/maven2/org/json/json/$JSON_VERSION/json-$JSON_VERSION.jar" \
   3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796 "$JSON"
-if [ ! -d "$TOOLS/kotlinc" ]; then
+# Unpacked next to a marker holding the zip's checksum: a new version, or an unpack that didn't finish, unpacks again.
+KOTLINC=$TOOLS/kotlinc-$KOTLIN_VERSION
+KOTLIN_SHA=$(sha256 "$KOTLIN")
+if [ "$(cat "$KOTLINC/.unpacked" 2> /dev/null)" != "$KOTLIN_SHA" ]; then
+  rm -rf "$KOTLINC" "$TOOLS/kotlinc"
   (cd "$TOOLS" && "$JAVA" --module jdk.jartool/sun.tools.jar.Main xf "kotlin-compiler-$KOTLIN_VERSION.zip")
+  mv "$TOOLS/kotlinc" "$KOTLINC"
+  echo "$KOTLIN_SHA" > "$KOTLINC/.unpacked"
 fi
 
 rm -rf "$OUT"
@@ -75,7 +81,7 @@ javac -nowarn -cp "$JSON$SEP$OUT/extension" -d "$OUT/test" test/*.java
 
 echo "== Patches"
 # The patcher was built with a pre-release Kotlin; its API is the one the official patches use.
-"$JAVA" -cp "$TOOLS/kotlinc/lib/kotlin-compiler.jar" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler \
+"$JAVA" -cp "$KOTLINC/lib/kotlin-compiler.jar" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler \
   -no-stdlib -no-reflect -jvm-target 17 -nowarn -Xskip-prerelease-check \
   -cp "$CLI" -d "$OUT/patches" $(find patches -name '*.kt')
 cp -r "$OUT/patches/." "$OUT/rvp/"
