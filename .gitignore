@@ -1,0 +1,4 @@
+# Build output
+/build/
+# Compilers downloaded by build.sh
+/.tools/
