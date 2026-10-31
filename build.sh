@@ -73,7 +73,7 @@ mkdir -p "$OUT/extension" "$OUT/patches" "$OUT/test" "$OUT/rvp/extensions" "$OUT
 echo "== Extension"
 javac --release 11 -nowarn -cp "$JSON" -d "$OUT/extension" $(find extension -name '*.java')
 d8 --release --min-api 23 --lib "$JSON" --output "$OUT/rvp/extensions" $(find "$OUT/extension" -name '*.class')
-mv "$OUT/rvp/extensions/classes.dex" "$OUT/rvp/extensions/syncfixes.rve"
+mv "$OUT/rvp/extensions/classes.dex" "$OUT/rvp/extensions/krokette-syncfixes.rve"
 
 echo "== Tests"
 javac -nowarn -cp "$JSON$SEP$OUT/extension" -d "$OUT/test" test/*.java

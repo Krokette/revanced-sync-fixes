@@ -1,4 +1,4 @@
-package app.revanced.patches.syncfixes
+package app.revanced.patches.krokette.syncfixes
 
 import app.revanced.patcher.extensions.addInstructions
 import app.revanced.patcher.patch.PatchException

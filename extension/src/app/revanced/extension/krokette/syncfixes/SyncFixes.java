@@ -1,4 +1,4 @@
-package app.revanced.extension.syncfixes;
+package app.revanced.extension.krokette.syncfixes;
 
 import java.util.Arrays;
 import java.util.Collections;

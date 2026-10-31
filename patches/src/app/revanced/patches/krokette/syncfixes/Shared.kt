@@ -1,4 +1,4 @@
-package app.revanced.patches.syncfixes
+package app.revanced.patches.krokette.syncfixes
 
 import app.revanced.com.android.tools.smali.dexlib2.mutable.MutableMethod
 import app.revanced.patcher.patch.BytecodePatchContext
@@ -11,8 +11,11 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 internal const val SYNC_PACKAGE = "com.laurencedawson.reddit_sync"
 internal const val SYNC_VERSION = "v23.06.30-13:39"
 
-internal const val EXTENSION = "extensions/syncfixes.rve"
-internal const val SYNC_FIXES = "Lapp/revanced/extension/syncfixes/SyncFixes;"
+// Names no other bundle uses. Manager loads every bundle together, and the patcher keeps only the first class or
+// extension file of a given name: another Sync fix that also called its extension syncfixes/SyncFixes broke
+// galleries in whichever bundle lost (NoSuchMethodError).
+internal const val EXTENSION = "extensions/krokette-syncfixes.rve"
+internal const val SYNC_FIXES = "Lapp/revanced/extension/krokette/syncfixes/SyncFixes;"
 
 internal const val STRING = "Ljava/lang/String;"
 

@@ -1,4 +1,4 @@
-import app.revanced.extension.syncfixes.SyncFixes;
+import app.revanced.extension.krokette.syncfixes.SyncFixes;
 
 import org.json.JSONObject;
 
