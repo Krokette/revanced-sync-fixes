@@ -24,13 +24,18 @@ You add this bundle to ReVanced Manager next to the official one, then patch Syn
    https://raw.githubusercontent.com/Krokette/revanced-sync-fixes/main/bundles/stable.json
    ```
 
-   Manager then keeps the bundle up to date by itself. (You can also download `patches.rvp` from
-   [Releases](https://github.com/Krokette/revanced-sync-fixes/releases/latest) and add it as a local file.)
-2. Patch Sync the way you did the first time, with the same official patches (**Spoof client** and the others),
-   and turn on **Fix Reddit galleries** and **Fix load more comments** from this bundle. Repatching the Sync you
-   already have installed works.
+   Use this link, not the `.rvp` file: Manager reads it to find each new release, so the bundle stays up to date
+   (turn on auto-update in the bundle's settings to get updates without asking). A link to the `.rvp` itself
+   doesn't work, and a `.rvp` added as a local file never updates. If you added the file before, delete that
+   bundle and add the link instead.
+2. Patch the **original** Sync v23.06.30-13:39 APK with the same official patches as before (**Spoof client** and
+   the others), and turn on **Fix Reddit galleries** and **Fix load more comments** from this bundle. Repatching
+   the Sync you already have installed also works, unless another Sync fix bundle was used on it before (see
+   below).
 3. Install. Sync updates in place and keeps your accounts and settings, as long as the same Manager patched it
    before.
+
+When the bundle updates, Sync doesn't change by itself: patch Sync again (step 2) to get the new version.
 
 If a patch says it couldn't find what it expected, the APK isn't Sync v23.06.30-13:39 (free). Every patch checks
 the code it changes and stops rather than patching the wrong place.
