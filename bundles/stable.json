@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-30T15:13:18",
-  "description": "Fixes for Sync for Reddit v23.06.30-13:39 (free) after Reddit blocked /api/info and /api/morechildren in October 2026.\n\n- **Fix Reddit galleries**: galleries open again.\n- **Fix load more comments**: \"View more\" works again.\n\nv1.0.1 hardens the load-more request (Reddit ids and known sorts only, always oauth.reddit.com). Repatch Sync with your usual official patches plus these two.",
-  "download_url": "https://github.com/Krokette/revanced-sync-fixes/releases/download/v1.0.1/patches.rvp",
+  "created_at": "2026-10-31T23:37:04",
+  "description": "Fixes for Sync for Reddit v23.06.30-13:39 (free) after Reddit blocked /api/info and /api/morechildren in October 2026.\n\n- **Fix Reddit galleries**: galleries open again.\n- **Fix load more comments**: \"View more\" works again.\n\nv1.0.2 fixes a gallery crash (NoSuchMethodError) when another Sync fix bundle was also used: it now uses its own internal names. If you had that crash, patch the original Sync APK, not the installed app.",
+  "download_url": "https://github.com/Krokette/revanced-sync-fixes/releases/download/v1.0.2/patches.rvp",
   "signature_download_url": "N/A",
-  "version": "v1.0.1"
+  "version": "v1.0.2"
 }
