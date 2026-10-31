@@ -35,6 +35,13 @@ You add this bundle to ReVanced Manager next to the official one, then patch Syn
 If a patch says it couldn't find what it expected, the APK isn't Sync v23.06.30-13:39 (free). Every patch checks
 the code it changes and stops rather than patching the wrong place.
 
+### Sync crashes when you open a gallery
+
+If the crash log mentions `NoSuchMethodError` and `SyncFixes`, your Sync holds another Sync gallery fix as well,
+from a second bundle or from an earlier patch. Versions before v1.0.2 used the same internal names as that other
+fix, and only one of the two survives patching. Update this bundle to v1.0.2 or later, or keep only one gallery
+fix, and patch the original Sync APK again.
+
 ## What changed at Reddit, and what the patches do
 
 Reddit now answers `403 Blocked` to third-party apps on three API endpoints: `/api/info`, `/by_id` and
