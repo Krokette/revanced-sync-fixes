@@ -10,8 +10,8 @@ October 2026:
 | **Fix Reddit galleries** | Galleries no longer open ("Error loading album") |
 | **Fix load more comments** | "Error loading more comments" when tapping "View more" |
 
-They are for **Sync for Reddit v23.06.30-13:39**, the free version (`com.laurencedawson.reddit_sync`), patched with
-the official ReVanced patches (Spoof client and the rest).
+They are for **Sync for Reddit v23.06.30-13:39**, the free (`com.laurencedawson.reddit_sync`) and Pro
+(`com.laurencedawson.reddit_sync.pro`) versions, patched with the official ReVanced patches (Spoof client and the rest).
 
 ## Install
 
@@ -37,7 +37,7 @@ You add this bundle to ReVanced Manager next to the official one, then patch Syn
 
 When the bundle updates, Sync doesn't change by itself: patch Sync again (step 2) to get the new version.
 
-If a patch says it couldn't find what it expected, the APK isn't Sync v23.06.30-13:39 (free). Every patch checks
+If a patch says it couldn't find what it expected, the APK isn't Sync v23.06.30-13:39 (free or Pro). Every patch checks
 the code it changes and stops rather than patching the wrong place.
 
 ### Sync crashes when you open a gallery

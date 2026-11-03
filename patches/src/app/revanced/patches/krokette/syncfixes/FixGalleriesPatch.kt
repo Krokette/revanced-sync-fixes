@@ -7,8 +7,9 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
-/** OAuthGalleryRequest: b(String) builds the /api/info URL, parseNetworkResponse reads the Listing. */
-private const val GALLERY_REQUEST = "Ly8/q;"
+/** OAuthGalleryRequest: b/c(String) builds the /api/info URL, parseNetworkResponse reads the Listing. */
+private const val FREE_GALLERY_REQUEST = "Ly8/q;"
+private const val PRO_GALLERY_REQUEST = "Lj8/q;"
 
 /** The gallery viewer, which remembers the page you were on in the request's cache entry. */
 private const val GALLERY_ACTIVITY = "Lcom/laurencedawson/reddit_sync/ui/activities/media/MultiImageActivity;"
@@ -19,12 +20,19 @@ val fixGalleriesPatch = bytecodePatch(
     description = "Fixes \"Could not load gallery\" since Reddit blocked /api/info for third-party apps (Oct 2026). " +
         "Sync loads the gallery post from /comments instead.",
 ) {
-    compatibleWith(SYNC_PACKAGE(SYNC_VERSION))
+    compatibleWith(
+        SYNC_PACKAGE(SYNC_VERSION),
+        SYNC_PRO_PACKAGE(SYNC_VERSION),
+    )
     extendWith(EXTENSION)
 
     apply {
-        // b(String): pass the URL it returns through SyncFixes.galleryUrl.
-        val url = method(GALLERY_REQUEST, "b", listOf(STRING), STRING)
+        val pro = classDefs[FREE_GALLERY_REQUEST] == null
+        val galleryRequest = if (pro) PRO_GALLERY_REQUEST else FREE_GALLERY_REQUEST
+        val urlMethod = if (pro) "c" else "b"
+
+        // b/c(String): pass the URL it returns through SyncFixes.galleryUrl.
+        val url = method(galleryRequest, urlMethod, listOf(STRING), STRING)
         val ret = url.indexOfOnly("return-object") { it.opcode == Opcode.RETURN_OBJECT }
         val urlRegister = (url.instructionList[ret] as OneRegisterInstruction).registerA
         url.addInstructions(
@@ -38,7 +46,7 @@ val fixGalleriesPatch = bytecodePatch(
         // parseNetworkResponse: /comments answers [post Listing, comments Listing]; hand Sync the post Listing,
         // which is what /api/info returned.
         val parse = method(
-            GALLERY_REQUEST,
+            galleryRequest,
             "parseNetworkResponse",
             listOf("Lcom/android/volley/NetworkResponse;"),
             "Lcom/android/volley/Response;",
@@ -58,7 +66,7 @@ val fixGalleriesPatch = bytecodePatch(
         val destroy = method(GALLERY_ACTIVITY, "onDestroy", emptyList(), "V")
         // The cache key is built twice there: for the read (the first), then for the write back.
         val cacheKey = destroy.instructionList.indexOfFirst {
-            it.opcode == Opcode.INVOKE_STATIC && it.references("$GALLERY_REQUEST->b($STRING)$STRING")
+            it.opcode == Opcode.INVOKE_STATIC && it.references("$galleryRequest->$urlMethod($STRING)$STRING")
         }
         if (cacheKey < 0) throw PatchException("$GALLERY_ACTIVITY->onDestroy: gallery cache key not found")
         val cached = destroy.instructionList.withIndex().firstOrNull { (index, instruction) ->

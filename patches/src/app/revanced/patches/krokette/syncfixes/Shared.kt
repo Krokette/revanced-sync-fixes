@@ -7,8 +7,9 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.Instruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 
-/** Sync for Reddit (free). The patches use its obfuscated names, so they only apply to this version. */
+/** Sync for Reddit (free and Pro). The patches use their obfuscated names, so they only apply to this version. */
 internal const val SYNC_PACKAGE = "com.laurencedawson.reddit_sync"
+internal const val SYNC_PRO_PACKAGE = "com.laurencedawson.reddit_sync.pro"
 internal const val SYNC_VERSION = "v23.06.30-13:39"
 
 // Names no other bundle uses. Manager loads every bundle together, and the patcher keeps only the first class or
